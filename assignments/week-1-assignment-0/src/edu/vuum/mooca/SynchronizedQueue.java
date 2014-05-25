@@ -138,8 +138,10 @@ public class SynchronizedQueue {
                 for (int i = 0; i < mMaxIterations; i++)
                     try {
                         mQueue.put(i);
-                        if (Thread.interrupted())
+                        if (Thread.interrupted()) {
+                        	System.out.println("producerRunnable iteration");
                             throw new InterruptedException();
+                        }
                     } catch (InterruptedException e) {
                         System.out.println("Thread properly interrupted by "
                                            + e.toString() + " in producerRunnable");
@@ -171,6 +173,7 @@ public class SynchronizedQueue {
                 for (int i = 0; i < mMaxIterations; i++)
                     try {
                         if (Thread.interrupted()) {
+                        	System.out.println("consumerRunnable iteration");
                             throw new InterruptedException();
                         }
                         Integer result = (Integer) mQueue.take();
@@ -220,21 +223,29 @@ public class SynchronizedQueue {
             // initialization below to create two Java Threads, one
             // that's passed the producerRunnable and the other that's
             // passed the consumerRunnable.
-            Thread consumer = null;
-            Thread producer = null;
+            Thread consumer = new Thread(producerRunnable); //null;
+            Thread producer = new Thread(consumerRunnable); //null;
 
             // TODO - you fill in here to start the threads. More
             // interesting results will occur if you start the
             // consumer first.
+            producer.start();
+            consumer.start();
+            
             
             // Give the Threads a chance to run before interrupting
             // them.
             Thread.sleep(100);
 
             // TODO - you fill in here to interrupt the threads.
+            producer.interrupt();
+            consumer.interrupt();
 
             // TODO - you fill in here to wait for the threads to
             // exit.
+            while(consumer.isAlive() || producer.isAlive()) {
+                Thread.sleep(100);            	
+            }
             
             // Do some sanity checking to see if the Threads work as
             // expected.
