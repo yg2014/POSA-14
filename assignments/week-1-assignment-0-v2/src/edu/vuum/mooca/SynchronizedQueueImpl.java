@@ -17,7 +17,7 @@ public class SynchronizedQueueImpl extends SynchronizedQueue {
     // TODO - change this to true if you want to see diagnostic
     // output on the console as the test runs.
     static {
-        diagnosticsEnabled = false;
+        diagnosticsEnabled = true;
     }
 	
     protected void createThreads() {

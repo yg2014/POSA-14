@@ -1,6 +1,7 @@
 // Import the necessary Java synchronization and scheduling classes.
 
 import java.util.concurrent.CountDownLatch;
+//import java.util.concurrent.Semaphore;
 
 /**
  * @class PingPongRight
@@ -19,7 +20,7 @@ public class PingPongRight {
     /**
      * Latch that will be decremented each time a thread exits.
      */
-    public static CountDownLatch latch = null; // TODO - You fill in here
+    public static CountDownLatch latch = new CountDownLatch(2); //null; // TODO - You fill in here
 
     /**
      * @class PlayPingPongThread
@@ -33,9 +34,13 @@ public class PingPongRight {
         /**
          * Constructor initializes the data member.
          */
-        public PlayPingPongThread (/* TODO - You fill in here */)
+        public PlayPingPongThread (String msg, SimpleSemaphore acquireSemaphore,
+                SimpleSemaphore releaseSemaphore)//* TODO - You fill in here */)
         {
             // TODO - You fill in here.
+            message = msg;
+            acqSemaphore = acquireSemaphore;
+            relSemaphore = releaseSemaphore;
         }
 
         /**
@@ -46,6 +51,18 @@ public class PingPongRight {
         public void run () 
         {
             // TODO - You fill in here.
+            for (int i = 1 ; i <= mMaxIterations ; i++) {
+                try {
+                	acqSemaphore.acquire();
+                    System.out.println(message + "(" + i + ")");
+                	relSemaphore.release();
+                	
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            latch.countDown();
+        	
         }
 
         /**
@@ -53,11 +70,14 @@ public class PingPongRight {
          * iteration.
          */
         // TODO - You fill in here.
+    	private String message;
 
         /**
          * The two SimpleSemaphores use to alternate pings and pongs.
          */
         // TODO - You fill in here.
+        SimpleSemaphore acqSemaphore = new SimpleSemaphore(mMaxIterations, false);
+        SimpleSemaphore relSemaphore = new SimpleSemaphore(mMaxIterations, false);
     }
 
     /**
@@ -69,15 +89,17 @@ public class PingPongRight {
             // alternation between threads.
 
             // TODO - You fill in here.
+            SimpleSemaphore pingSema  = new SimpleSemaphore(mMaxIterations,true);
+            SimpleSemaphore pongSema  = new SimpleSemaphore(mMaxIterations, true);
 
             System.out.println("Ready...Set...Go!");
 
             // Create the ping and pong threads, passing in the string
             // to print and the appropriate SimpleSemaphores.
             PlayPingPongThread ping =
-                new PlayPingPongThread(/* TODO - You fill in here */);
+                new PlayPingPongThread("Ping!", pingSema , pongSema );//* TODO - You fill in here */);
             PlayPingPongThread pong =
-                new PlayPingPongThread(/* TODO - You fill in here */);
+                new PlayPingPongThread("Pong!", pongSema , pingSema );//* TODO - You fill in here */);
             
             // Initiate the ping and pong threads, which will call the
             // run() hook method.
@@ -90,7 +112,9 @@ public class PingPongRight {
             // TODO - replace replace the following line with a
             // CountDownLatch barrier synchronizer call that waits for
             // both threads to finish.
-            throw new java.lang.InterruptedException();
+//            throw new java.lang.InterruptedException();
+            latch.await();
+
         } 
         catch (java.lang.InterruptedException e)
             {}

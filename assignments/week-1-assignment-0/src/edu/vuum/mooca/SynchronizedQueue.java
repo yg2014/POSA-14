@@ -243,9 +243,11 @@ public class SynchronizedQueue {
 
             // TODO - you fill in here to wait for the threads to
             // exit.
-            while(consumer.isAlive() || producer.isAlive()) {
-                Thread.sleep(100);            	
-            }
+            consumer.join();
+            producer.join();
+ //           while(consumer.isAlive() || producer.isAlive()) {
+ //               Thread.sleep(100);            	
+ //           }
             
             // Do some sanity checking to see if the Threads work as
             // expected.

@@ -1,5 +1,5 @@
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.Lock;
+//import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.Condition;
 
 /**
@@ -14,10 +14,12 @@ public class SimpleSemaphore {
     /**
      * Constructor initialize the data members.  
      */
-    public SimpleSemaphore (int permits,
-                            boolean fair)
+    public SimpleSemaphore (int permits, boolean fair)
     { 
         // TODO - you fill in here
+        iPermits = permits;
+        lock = new ReentrantLock(fair);
+        ConditionIsZero = lock.newCondition();
     }
 
     /**
@@ -26,6 +28,11 @@ public class SimpleSemaphore {
      */
     public void acquire() throws InterruptedException {
         // TODO - you fill in here
+        lock.lock();
+        while (iPermits == 0)
+        	ConditionIsZero.await();
+        iPermits--;
+        lock.unlock();
     }
 
     /**
@@ -34,6 +41,17 @@ public class SimpleSemaphore {
      */
     public void acquireUninterruptibly() {
         // TODO - you fill in here
+        lock.lock();
+        while (iPermits == 0)
+            try {
+            	ConditionIsZero.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        iPermits--;
+        lock.unlock();
+
     }
 
     /**
@@ -41,21 +59,32 @@ public class SimpleSemaphore {
      */
     void release() {
         // TODO - you fill in here
+        lock.lock();
+        try {
+            iPermits++;
+            ConditionIsZero.signal();
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
      * Define a ReentrantLock to protect the critical section.
      */
     // TODO - you fill in here
+    private ReentrantLock lock;
 
     /**
      * Define a ConditionObject to wait while the number of
      * permits is 0.
      */
     // TODO - you fill in here
+    private Condition ConditionIsZero;
 
     /**
      * Define a count of the number of available permits.
      */
     // TODO - you fill in here
+ 	private int iPermits;
 }
+
